@@ -3,11 +3,26 @@ import configparser
 from typing import List
 import requests
 import xml.etree.ElementTree as ET
-from utils.mobile_number_format import addHyphen, removeHyphen
 
 config = configparser.ConfigParser()
 config.read('unipass.ini')
 UNIPASS_API_KEY = config['DEFAULT']['UNIPASS_API_KEY']
+
+
+def removeHyphen(phoneNumber: str):
+    return phoneNumber.replace("-", "")
+
+
+def addHyphen(phoneNumber: str):
+    if len(phoneNumber) > 9:
+        phoneNumber = removeHyphen(phoneNumber)
+        phoneNumWithHyphen = f"{phoneNumber[0:-8]}-{phoneNumber[-8:-4]}-{phoneNumber[-4:]}"
+        # if the phone number has 10 digits and starts with 01
+        if phoneNumber[0:-8] == "01":
+            phoneNumWithHyphen = f"{phoneNumber[0:-7]}-{phoneNumber[-7:-4]}-{phoneNumber[-4:]}"
+
+        return phoneNumWithHyphen
+    return phoneNumber
 
 
 def api_request(customsIdNumber: str, name: str, phone: str):
@@ -36,7 +51,6 @@ def api_request(customsIdNumber: str, name: str, phone: str):
 
 
 def validate(customsIdNumber: str, names: List[str], phones: List[str]):
-
     finalName = names[0]
     finalPhone = phones[0]
     if len(customsIdNumber) != 13:
@@ -57,12 +71,3 @@ def validate(customsIdNumber: str, names: List[str], phones: List[str]):
 
     result = api_request(customsIdNumber, finalName, finalPhone)
     return {'success': False, 'customsIdNumber': customsIdNumber, 'name': finalName, 'phone': addHyphen(finalPhone), 'errors': result['errors']}
-
-
-print(validate("P123", ['공경섭'], ['010-6878-3628']))
-print(validate("P220003429872", ['', '공경섭'], ['010-878-3628', '']))
-print(validate("P220003429872", ['고경저', '김진숙', ''], [
-      '0503-123-1234', '010-4524-7873', '0503-123-1234']))
-print(validate("P220003429872", ['김진', '김진숙'], ['010-4524-7875']))
-print(validate("P220003429872", ['김진'], [
-      '010-4524-7873', '0503-123-1234', '010-4524-7875']))

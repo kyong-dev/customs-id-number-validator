@@ -1,4 +1,4 @@
-from package.customs_id_number import validate
+from customs_id_number.customs_id_number import validate
 
 if __name__ == "__main__":
-    print(validate("P123", '공경섭', '010-6878-3628'))
+    print(validate("P12323123", '아무개', '010-1231-2232'))
