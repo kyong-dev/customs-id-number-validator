@@ -9,7 +9,7 @@ This package is suitable for overseas direct purchase e-commerce platforms that 
 해외직구 플랫폼을 운영하면서 다수의 플랫폼에서 개인통관고유부호를 제대로 수집하지 않는 경우, 개인통관고유부호 오기입, 미기입 등 불필요한 CS를 최소화 하기 위해 여러 프로그램에 적용 가능한 패키지입니다. 
 
 ## Installation
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install foobar.
+Use the package manager [pip](https://pip.pypa.io/en/stable/) to install the package.
 
 ```bash
 pip install customs-id-number-validator
@@ -49,7 +49,7 @@ MacBook-Pro:~/test$ python
 
 5. 프로젝트에 적용하기
 ```python
-from customs_id_number import validate;
+from customs_id_number import validate
 
 validate('P123123123123', ['이름일', '이름이'], ['010-2323-2323', '010-2424-2424'])
 ```
