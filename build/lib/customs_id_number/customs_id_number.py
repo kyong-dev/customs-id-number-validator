@@ -3,6 +3,7 @@ import configparser
 from typing import List
 import requests
 import xml.etree.ElementTree as ET
+from urllib import parse
 
 config = configparser.ConfigParser()
 config.read('unipass.ini')
@@ -33,7 +34,8 @@ def api_request(customsIdNumber: str, name: str, phone: str):
         errors.append('납세의무자 휴대전화번호은(는) 필수입력입니다.')
     if len(errors) > 0:
         return {'success': False, 'errors': errors}
-    requestURL = f'https://unipass.customs.go.kr:38010/ext/rest/persEcmQry/retrievePersEcm?crkyCn={UNIPASS_API_KEY}&persEcm={customsIdNumber}&pltxNm={name}&cralTelno={removeHyphen(phone)}'
+    requestURL = f'https://unipass.customs.go.kr:38010/ext/rest/persEcmQry/retrievePersEcm?crkyCn={UNIPASS_API_KEY}&persEcm={customsIdNumber}&pltxNm={parse.quote(name)}&cralTelno={removeHyphen(phone)}'
+    print(requestURL)
     try:
         response = requests.get(requestURL)
     except Exception as e:

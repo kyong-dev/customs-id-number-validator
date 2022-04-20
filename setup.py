@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="customs-id-number-validator",
-    version="0.1.6",
+    version="0.2.0",
     author="Kyong",
     author_email="kyong-dev@gmail.com",
     description="A small python package for validating Customs ID Number",
