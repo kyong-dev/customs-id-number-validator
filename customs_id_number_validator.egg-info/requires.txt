@@ -1,8 +1,0 @@
-requests
-
-[PDF]
-ReportLab>=1.2
-RXP
-
-[reST]
-docutils>=0.3

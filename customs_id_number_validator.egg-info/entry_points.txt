@@ -1,6 +1,0 @@
-[console_scripts]
-shortcut1 = package.module:func
-
-[gui_scripts]
-shortcut2 = package.module:func
-
