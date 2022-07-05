@@ -11,4 +11,4 @@ __all__ = ['customs_id_number']
 
 # 패키지 버전 정의
 
-__version__ = '0.2.0'
+__version__ = '0.2.1'
