@@ -51,36 +51,59 @@ MacBook-Pro:~/test$ python
 ```python
 from customs_id_number import validate
 
-validate('P123123123123', ['이름일', '이름이'], ['010-2323-2323', '010-2424-2424'])
+validate('P123123123123', ['이름일', '이름이'], ['010-2323-2323', '010-2424-2424'], nameFilterList= ['Interpark', 'Lotteon', 'Kshopping', '11st', 'Tmon'])
 ```
 
 ## How it works
 
 1. 보통 주문을 수집하는 경우 고유통관고유부호, 주문자 성명, 주문자 휴대폰번호, 수취인 성명, 수취인 휴대폰번호 이렇게 5개를 수집하는데 주문자가 본인의 개인통관고유부호를 기입하는 경우, 미기입하는 경우 휴대폰번호가 관세청에 등록되어 있는 번호와 다른 경우 오류가 발생합니다.
-2. 위에 예시 처럼 매개변수는 (개인통관고유부호: str, 주문자와 수취인 성명: List[str], 휴대폰번호들: List[str]) 이렇게 세 가지이며 리스트 크기는 상관없이 모든 경우의 수로 확인합니다.
+2. 위에 예시 처럼 매개변수는 (개인통관고유부호: str, 주문자와 수취인 성명: List[str], 휴대폰번호들: List[str], 이름필터: List[str] = []) 이렇게 네 가지이며 리스트 크기는 상관없이 모든 경우의 수로 확인합니다. 이름필터 같은 경우는 선택입니다. (사방넷 몇몇 오픈마켓에서 플랫폼 이름과 번호를 수취인명 또는 주문자명으로 등록하는 경우 대비)
 3. 결과값 경우의 수<br />
 
-- 입력된 개인통관고유부호와 유효한 이름과 휴대폰번호가 있을때
+
+## Result
+
+- customIdNumber = o, name = [o, o], phone = [o, o]
 ```python
-{'success': True, 'customsIdNumber': 'P123123123123', 'name': '김진*', 'phone': '010-****-****', 'errors': []}
+{'success': True, 'customsIdNumber': 'P21*********7', 'name': '오**', 'phone': '010-****-**72', 'errors': []}
 ```
-- 개인통관고유부호 자체가 잘못된 경우
+
+- customIdNumber = o, name = [o, x], phone = [o, x]
 ```python
-{'success': False, 'customsIdNumber': 'P000000000000', 'name': '김진*', 'phone': '010-****-****', 'errors': ['납세의무자 개인통관고유부호가 존재하지 않습니다.']}
+{'success': True, 'customsIdNumber': 'P21*********7', 'name': '오**', 'phone': '010-****-**72', 'errors': []}
 ```
-- 개인통관고유부호와 유효한 이름은 있지만 휴대폰번호들이 모두 일치하지 않는 경우 가장 처음 입력된 '01'로 시작하는 휴대폰번호와 함께 오류를 리턴합니다. (안심번호와 집 전화번호는 제외됨)
+
+- customIdNumber = o, name = [x, o], phone = [o, '']
 ```python
-{'success': False, 'customsIdNumber': 'P123123123123', 'name': '김진*', 'phone': '010-****-****', 'errors': ['납세의무자 휴대전화번호가 일치하지 않습니다.']}
+{'success': True, 'customsIdNumber': 'P21*********7', 'name': '오**', 'phone': '010-****-**72', 'errors': []}
 ```
-- 개인통관고유부호와 유효한 휴대폰번호는 있지만 이름들이 일치하지 않는 경우 처음 입력된 2자 이상의 이름과 함께 오류를 리턴.
+
+- customIdNumber = o, name = ['', o], phone = [o, '']
 ```python
-{'success': False, 'customsIdNumber': 'P123123123123', 'name': '김진*', 'phone': '010-****-****',, 'errors': ['입력하신 납세의무자명(김진)이 개인통관고유부호의 성명과 일치하지 않습니다. 납세의무자명(pltxNm)] 파라미터가 깨질경우 UTF-8로 변환하여 실행하십시오.']}
+{'success': True, 'customsIdNumber': 'P21*********7', 'name': '오**', 'phone': '010-****-**72', 'errors': []}
 ```
-- 휴대폰번호와 이름 둘다 일치하지 않는 경우 에러 메시지 2개와 함께 오류를 리턴
+
+- customIdNumber = '', name = ['', o], phone = [x, '']
 ```python
-{'success': False, 'customsIdNumber': 'P123123123123', 'name': '김진*', 'phone': '010-****-****', 'errors': ['입력하신 납세의무자명(김진)이 개인통관고유부호의 성명과 일치하지 않습니다. 납세의무자명(pltxNm)] 파라미터가 깨질경우 UTF-8로 변환하여 실행하십시오.', '납세의무자 휴대전화번호가 일치하지 않습니다.']}
+{'success': False, 'customsIdNumber': '', 'name': '', 'phone': '010-****-**72', 'errors': ['납세의무자 개인통관고유부호가 존재하지 않습니다.', '납세의무자의 휴대전화번호 확인이 불가능하기 때문에 재확인이 필요 합니다.']}
 ```
-- 휴대폰번호와 성명이 제대로 기입이 안되는 경우
+
+- customIdNumber = o, name = ['', x], phone = [o, '']
 ```python
-{'success': False, 'customsIdNumber': 'P220003429872', 'name': '', 'phone': '', 'errors': ['납세의무자 성명은(는) 필수입력입니다.', '납세의무자 휴대전화번호은(는) 필수입력입니다.']}
+{'success': False, 'customsIdNumber': 'P21*********7', 'name': '육**', 'phone': '010-****-**72', 'errors': ['입력하신 납세의무자명(육경욱)이 개인통관고유부호의 성명과 일치하지 않습니다. 납세의무자명(pltxNm)] 파라미터가 깨질경우 UTF-8로 변환하여 실행하십시오.']}
+```
+
+- customIdNumber = o, name = ['', o], phone = [x, '']
+```python
+{'success': False, 'customsIdNumber': 'P21*********7', 'name': '오**', 'phone': '010-****-**73', 'errors': ['납세의무자 휴대전화번호가 일치하지 않습니다.']}
+```
+
+- customIdNumber = x, name = ['', o], phone = [x, '']
+```python
+{'success': False, 'customsIdNumber': 'P21*********6', 'name': '오**', 'phone': '010-****-**72', 'errors': ['납세의무자 개인통관고유부호가 존재하지 않습니다.', '납세의무자의 휴대전화번호 확인이 불가능하기 때문에 재확인이 필요 합니다.']}
+```
+
+customIdNumber = o, name = ['', x], phone = [x]
+```python
+{'success': False, 'customsIdNumber': 'P21*********7', 'name': '육**', 'phone': '010-****-**73', 'errors': ['입력하신 납세의무자명(육경욱)이 개인통관고유부호의 성명과 일치하지 않습니다. 납세의무자명(pltxNm)] 파라미터가 깨질경우 UTF-8로 변환하여 실행하십시오.', '납세의무자 휴대전화번호가 일치하지 않습니다.']}
 ```

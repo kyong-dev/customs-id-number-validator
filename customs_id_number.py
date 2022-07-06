@@ -14,6 +14,17 @@ DEFAULT_PHONE_NUMBER = "010-0000-0000"
 def removeHyphen(phoneNumber: str):
     return phoneNumber.replace("-", "")
 
+def getFilteredNameFromTheList(nameList: List[str], nameFilterList: List[str]):
+    for name in nameList:
+        isExist = False
+        for filterWord in nameFilterList:
+            if filterWord in name:
+                isExist = True
+                break
+        if isExist:
+            pass
+        else:
+            return name
 
 def addHyphen(phoneNumber: str):
     if len(phoneNumber) > 9:
@@ -26,9 +37,12 @@ def addHyphen(phoneNumber: str):
         return phoneNumWithHyphen
     return phoneNumber
 
-
-def api_request(customsIdNumber: str, name: str, phone: str):
+def api_request(customsIdNumber: str, name: str, phone: str, nameFilterList: List[str] = []):
     errors = []
+    for filterWord in nameFilterList:
+        if filterWord in name:
+            errors.append('개인통관고유부호의 성명과 일치하지 않습니다!')
+            break
     if len(name) < 2:
         errors.append('납세의무자 성명은(는) 필수입력입니다.')
     if len(phone) < 9:
@@ -51,9 +65,8 @@ def api_request(customsIdNumber: str, name: str, phone: str):
             errors.append(reason.find('errMsgCn').text)
         return {'success': False, 'errors': errors}
 
-
-def validate(customsIdNumber: str, names: List[str], phones: List[str]):
-    finalName = names[0]
+def validate(customsIdNumber: str, names: List[str], phones: List[str], nameFilterList: List[str] = []):
+    finalName = getFilteredNameFromTheList(names, nameFilterList)
     finalPhone = phones[0]
     if len(customsIdNumber) != 13:
         return {'success': False, 'customsIdNumber': customsIdNumber, 'name': finalName, 'phone': addHyphen(finalPhone), 'errors': ['납세의무자 개인통관고유부호가 존재하지 않습니다.', '납세의무자의 휴대전화번호 확인이 불가능하기 때문에 재확인이 필요 합니다.']}
@@ -62,10 +75,7 @@ def validate(customsIdNumber: str, names: List[str], phones: List[str]):
         for phone in phones:
             if phone == "":
                 phone = DEFAULT_PHONE_NUMBER
-                result = api_request(customsIdNumber, name,
-                                     phone)
-            else:
-                result = api_request(customsIdNumber, name, phone)
+            result = api_request(customsIdNumber, name, phone, nameFilterList)
             if result['success']:
                 return {'success': True, 'customsIdNumber': customsIdNumber, 'name': name, 'phone': addHyphen(phone), 'errors': result['errors']}
             else:
@@ -76,7 +86,7 @@ def validate(customsIdNumber: str, names: List[str], phones: List[str]):
                 if '휴대전화번호' not in ' '.join(result['errors']) or (not finalPhone.startswith('01') and phone.startswith('01')):
                     if phone is not DEFAULT_PHONE_NUMBER:
                         finalPhone = phone
-    result = api_request(customsIdNumber, finalName, finalPhone)
+    result = api_request(customsIdNumber, finalName, finalPhone, nameFilterList)
     if finalPhone == DEFAULT_PHONE_NUMBER:
         result['errors'].append('납세의무자 휴대전화번호은(는) 필수입력입니다.')
     else:
